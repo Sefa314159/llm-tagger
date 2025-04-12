@@ -1,0 +1,35 @@
+version: '3'
+
+services:
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - app-network
+
+  app:
+    build: .
+    ports:
+      - "8000:8000"  # FastAPI
+      - "8501:8501"  # Streamlit
+    depends_on:
+      - mongodb
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPEN_AI_MODEL_NAME=${OPEN_AI_MODEL_NAME}
+      - OPENAI_MODEL_TEMPERATURE=${OPENAI_MODEL_TEMPERATURE}
+      - MONGO_URI=mongodb://mongodb:27017
+      - MONGO_DB_NAME=analysis_db
+      - MONGO_COLLECTION_NAME=analysis_logs
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mongodb_data:
