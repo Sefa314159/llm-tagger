@@ -1,6 +1,4 @@
 import re
-from app import LLMTagger
-import requests
 import datetime
 import logging
 
@@ -25,7 +23,10 @@ def split_sentences(text: str) -> list:
     Returns:
         list: A list of individual sentences from the input text.
     """
-    sentences = re.split(r'(?<=[.!?]) +', text.strip())
+    # Use \s+ to split on any whitespace (spaces, newlines, tabs) following
+    # punctuation. This prevents sentences separated by newlines or multiple
+    # spaces from being joined together.
+    sentences = re.split(r'(?<=[.!?])\s+', text.strip())
     return sentences
 
 def analyze_conversation(text: str) -> list:
@@ -42,6 +43,9 @@ def analyze_conversation(text: str) -> list:
     Returns:
         list: A list of dictionaries, each containing a sentence and its analysis.
     """
+    # Import here to avoid heavy dependency when only split_sentences is used
+    from app import LLMTagger
+    import requests
     tagger = LLMTagger()
     sentences = split_sentences(text)
     results = []
